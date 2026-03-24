@@ -1,0 +1,1 @@
+# qualitec-copilot-snake-challenge
