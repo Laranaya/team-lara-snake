@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Game – Copilot Challenge</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      color: #eee;
+    }
+    #score-board {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+    #score-board span { color: #00d4aa; font-weight: bold; }
+    canvas {
+      border: 2px solid #00d4aa;
+      background: #0f3460;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="score-board">SCORE: <span id="score">0</span></div>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx    = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+
+    // ─────────────────────────────────────────────────────────────────
+    // TODO – PHASE 3, STEP 1
+    // Using Copilot Agent, define the game constants and variables.
+    // Use the starter prompt in prompts.md → Phase 3, Step 1.
+    //
+    // You will need: GRID_SIZE, TILE_COUNT, snake array, food object,
+    // direction variables (dx/dy), a score counter, and a gameLoop ref.
+    // ─────────────────────────────────────────────────────────────────
+
+
+    // ─────────────────────────────────────────────────────────────────
+    // TODO – PHASE 3, STEP 2
+    // Using Copilot Agent, add keyboard event listeners.
+    // Use the starter prompt in prompts.md → Phase 3, Step 2.
+    //
+    // Handle ArrowUp / ArrowDown / ArrowLeft / ArrowRight.
+    // Prevent the snake from reversing directly into itself.
+    // ─────────────────────────────────────────────────────────────────
+
+
+    // ─────────────────────────────────────────────────────────────────
+    // TODO – PHASE 3, STEP 3
+    // Using Copilot Agent, implement the main game loop function.
+    // Use the starter prompt in prompts.md → Phase 3, Step 3.
+    //
+    // It should: move the snake, check wall/self collisions,
+    // check if food is eaten, draw everything on the canvas.
+    // ─────────────────────────────────────────────────────────────────
+
+
+    // ─────────────────────────────────────────────────────────────────
+    // TODO – PHASE 3, STEP 4
+    // Using Copilot Agent, start the game loop with setInterval.
+    // Use the starter prompt in prompts.md → Phase 3, Step 4.
+    //
+    // Start with an interval of ~150ms. Update scoreEl.textContent
+    // whenever the snake eats food.
+    // ─────────────────────────────────────────────────────────────────
+
+
+    // ─────────────────────────────────────────────────────────────────
+    // TODO – PHASE 4
+    // Using Copilot Agent, add refinements and extra features.
+    // See prompts.md → Phase 4 for ideas and starter prompts.
+    //
+    // Ideas: game over screen, restart button, speed ramp-up,
+    // high score (localStorage), walls-off wrap mode, visual effects...
+    // ─────────────────────────────────────────────────────────────────
+
+  </script>
+</body>
+</html>
