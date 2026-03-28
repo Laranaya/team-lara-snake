@@ -7,7 +7,6 @@ These are **starting points**, not answers. Read each response carefully, discus
 ---
 
 ## Phase 1 – Research (Copilot Chat Mode)
-
 ### Starter Prompt
 
 ```
@@ -21,8 +20,8 @@ For each component, briefly explain what it does and why it matters.
 - "How does collision detection work in a grid-based game like Snake?"
 - "What's the best data structure to represent the snake's body, and why?"
 - "Should I use setInterval or requestAnimationFrame for the game loop — what are the trade-offs?"
-
 ---
+
 
 ## Phase 2 – Design (Copilot Plan Mode)
 
