@@ -1,7 +1,7 @@
 # Phase 1 Evidence – Research (Copilot Chat)
 
-**Team name:** Lara
-**Completed at:** _e.g. 14:03_
+**Team name:** _Lara_
+**Completed at:** _15:20_
 
 ---
 
@@ -119,3 +119,5 @@ Claude Haiku 4.5 • 1x
 _What was the single most useful thing your team learned from Chat in this phase?_
 
 That context can be very important in terms of answering prompts (in terms of which files to tag on for the AI to have context) and the AI was able to explain everything in a clear manner.
+
+NOTE 2: ALL PROMPTS PASTED AS EVIDENCE ARE FROM THE 2ND VER

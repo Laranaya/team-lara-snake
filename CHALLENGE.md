@@ -9,7 +9,7 @@
 
 Build a working Snake game using **only GitHub Copilot** — but in the _right order_, using the right Copilot mode at each stage.
 
-The challenge is not just about the game. It is about learning to use Copilot's different modes purposefully: **Chat → Plan → Agent**, with slash commands and prompt refinement along the way.
+The challenge is not just about the game. It is about learning to use Copilot's different modes pur      posefully: **Chat → Plan → Agent**, with slash commands and prompt refinement along the way.
 
 ---
 
