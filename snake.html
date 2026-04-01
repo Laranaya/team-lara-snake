@@ -7,63 +7,224 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background: linear-gradient(130deg, #0a0e27 0%, #1a1a4d 50%, #0f2942 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      font-family: 'Segoe UI', sans-serif;
-      color: #eee;
+      width: 100vw;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #e0e0e0;
+      padding: 0;
+      position: relative;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    @keyframes twinkle-fast {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.8; }
+    }
+    @keyframes twinkle-slow {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+    #starfield {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+    }
+    #game-title {
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #00d4aa;
+      text-shadow: 0 0 20px rgba(0, 212, 170, 0.8), 0 0 40px rgba(0, 212, 170, 0.4);
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+      animation: titlePulse 2s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+    }
+    @keyframes titlePulse {
+      0%, 100% { text-shadow: 0 0 20px rgba(0, 212, 170, 0.8); }
+      50% { text-shadow: 0 0 30px rgba(0, 212, 170, 1), 0 0 50px rgba(0, 212, 170, 0.6); }
+    }
+    #game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
     }
     #score-board {
-      font-size: 1.4rem;
-      margin-bottom: 12px;
-      letter-spacing: 2px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1px;
       display: flex;
-      gap: 40px;
+      gap: 30px;
+      background: rgba(0, 212, 170, 0.08);
+      padding: 10px 30px;
+      border-radius: 10px;
+      border: 2px solid rgba(0, 212, 170, 0.3);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 212, 170, 0.1), inset 0 0 20px rgba(0, 212, 170, 0.05);
     }
-    #score-board span { color: #00d4aa; font-weight: bold; }
-    #high-score { color: #ffd700; }
+    #score-board span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e0e0e0;
+    }
+    #score-board span span {
+      color: #00d4aa;
+      font-weight: 900;
+      font-size: 1.2rem;
+      text-shadow: 0 0 10px rgba(0, 212, 170, 0.6);
+    }
+    #high-score span span {
+      color: #ffd700 !important;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.6) !important;
+    }
     canvas {
       border: 3px solid #00d4aa;
       background: #0f3460;
       display: block;
-      box-shadow: 0 0 20px rgba(0, 212, 170, 0.5);
+      box-shadow: 0 0 25px rgba(0, 212, 170, 0.5), 0 0 50px rgba(0, 212, 170, 0.25), inset 0 0 15px rgba(0, 212, 170, 0.1);
+      border-radius: 10px;
+      transition: box-shadow 0.3s ease;
+      width: 340px;
+      height: 340px;
+    }
+    canvas:hover {
+      box-shadow: 0 0 35px rgba(0, 212, 170, 0.7), 0 0 70px rgba(0, 212, 170, 0.35), inset 0 0 25px rgba(0, 212, 170, 0.12);
     }
     #controls {
       display: flex;
-      gap: 15px;
-      margin-top: 20px;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 25px;
+      background: rgba(0, 212, 170, 0.08);
+      border-radius: 10px;
+      border: 2px solid rgba(0, 212, 170, 0.3);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 212, 170, 0.1);
+      width: 100%;
+      max-width: 500px;
+      flex-wrap: wrap;
+    }
+    .speed-display, .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #e0e0e0;
+      letter-spacing: 0.5px;
+    }
+    .speed-display {
+      padding: 6px 12px;
+      background: rgba(0, 212, 170, 0.1);
+      border-radius: 8px;
+      border-left: 3px solid #00d4aa;
+    }
+    #speed-level {
+      font-size: 0.95rem;
+      color: #00d4aa;
+      font-weight: 900;
+      text-shadow: 0 0 10px rgba(0, 212, 170, 0.6);
+      min-width: 35px;
+      text-align: center;
+    }
+    .mode-toggle {
+      padding: 6px 12px;
+      background: rgba(46, 204, 113, 0.1);
+      border-radius: 8px;
+      border-left: 3px solid #2ecc71;
     }
     button {
-      padding: 10px 20px;
-      font-size: 1rem;
+      padding: 6px 14px;
+      font-size: 0.75rem;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s ease;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: all 0.25s ease;
       background: linear-gradient(135deg, #00d4aa 0%, #00aa88 100%);
-      color: #1a1a2e;
-      box-shadow: 0 0 10px rgba(0, 212, 170, 0.6);
+      color: #0a0e27;
+      box-shadow: 0 4px 15px rgba(0, 212, 170, 0.4), 0 0 20px rgba(0, 212, 170, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    button:hover::before {
+      left: 100%;
     }
     button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(0, 212, 170, 0.9);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 212, 170, 0.6), 0 0 30px rgba(0, 212, 170, 0.3);
     }
     button:active {
-      transform: scale(0.98);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 10px rgba(0, 212, 170, 0.4);
     }
     #wrap-mode-btn {
       background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-      box-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4), 0 0 20px rgba(46, 204, 113, 0.2);
+      color: #0a0e27;
     }
     #wrap-mode-btn:hover {
-      box-shadow: 0 0 25px rgba(46, 204, 113, 0.9);
+      box-shadow: 0 8px 25px rgba(46, 204, 113, 0.6), 0 0 30px rgba(46, 204, 113, 0.3);
     }
     #wrap-mode-btn.active {
-      box-shadow: 0 0 30px rgba(46, 204, 113, 1), inset 0 0 10px rgba(46, 204, 113, 0.5);
+      box-shadow: 0 4px 20px rgba(46, 204, 113, 0.8), inset 0 0 15px rgba(46, 204, 113, 0.3), 0 0 40px rgba(46, 204, 113, 0.5);
+      background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    }
+    @keyframes modeFlash {
+      0%, 100% { box-shadow: 0 4px 20px rgba(46, 204, 113, 0.5); }
+      50% { box-shadow: 0 0 40px rgba(46, 204, 113, 1), inset 0 0 20px rgba(46, 204, 113, 0.5); }
+    }
+    .pause-button {
+      background: linear-gradient(135deg, #9d4edd 0%, #7209b7 100%);
+      box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4), 0 0 20px rgba(157, 78, 221, 0.2);
+      color: #fff;
+      padding: 6px 12px;
+    }
+    .pause-button:hover {
+      box-shadow: 0 8px 25px rgba(157, 78, 221, 0.6), 0 0 30px rgba(157, 78, 221, 0.3);
+    }
+    .pause-button.paused {
+      background: linear-gradient(135deg, #7209b7 0%, #3a0ca3 100%);
+      box-shadow: 0 4px 20px rgba(157, 78, 221, 0.8), inset 0 0 15px rgba(157, 78, 221, 0.3), 0 0 30px rgba(157, 78, 221, 0.5);
+    }
+    .pause-button.paused:hover {
+      box-shadow: 0 8px 30px rgba(157, 78, 221, 0.9), inset 0 0 20px rgba(157, 78, 221, 0.4), 0 0 40px rgba(157, 78, 221, 0.6);
     }
     #game-over-screen {
       position: fixed;
@@ -71,91 +232,226 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.92);
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     #game-over-screen.show {
       display: flex;
     }
     #game-over-content {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      padding: 40px;
-      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    #trail-viewer {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+    #trail-viewer.show {
+      display: flex;
+    }
+    #trail-canvas {
+      border: 3px solid #a855f7;
+      background: #0f3460;
+      display: block;
+      box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), inset 0 0 15px rgba(168, 85, 247, 0.1);
+      border-radius: 10px;
+      width: 340px;
+      height: 340px;
+    }
+    #trail-controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #trail-status {
+      font-size: 0.9rem;
+      color: #a855f7;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+    }
+    #game-over-content {
+      background: linear-gradient(135deg, #1a1a4d 0%, #16213e 100%);
+      padding: 30px 28px;
+      border-radius: 18px;
       text-align: center;
       border: 3px solid #00d4aa;
-      box-shadow: 0 0 40px rgba(0, 212, 170, 0.6);
-      animation: slideIn 0.4s ease;
+      box-shadow: 0 0 60px rgba(0, 212, 170, 0.6), 0 0 100px rgba(0, 212, 170, 0.3), inset 0 0 30px rgba(0, 212, 170, 0.1);
+      animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    @keyframes slideIn {
-      from {
-        transform: scale(0.8);
+    @keyframes popIn {
+      0% {
+        transform: scale(0.5);
         opacity: 0;
       }
-      to {
+      70% {
+        transform: scale(1.08);
+      }
+      100% {
         transform: scale(1);
         opacity: 1;
       }
     }
     #game-over-content h1 {
-      font-size: 3rem;
+      font-size: 2.2rem;
       color: #ff6b6b;
-      margin-bottom: 20px;
-      text-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+      margin-bottom: 15px;
+      text-shadow: 0 0 30px rgba(255, 107, 107, 0.8), 0 0 60px rgba(255, 107, 107, 0.4);
+      font-weight: 900;
+      letter-spacing: 2px;
+      animation: gameover-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes gameover-pulse {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
     }
     #game-over-content p {
-      font-size: 1.3rem;
-      margin: 10px 0;
-      color: #eee;
+      font-size: 0.85rem;
+      margin: 10px 0 6px 0;
+      color: #b0b0b0;
+      letter-spacing: 0.5px;
     }
     #game-over-content .score-final {
-      font-size: 1.8rem;
+      font-size: 2rem;
       color: #00d4aa;
-      font-weight: bold;
-      margin: 15px 0;
+      font-weight: 900;
+      margin: 12px 0 18px 0;
+      text-shadow: 0 0 20px rgba(0, 212, 170, 0.8);
+      letter-spacing: 2px;
     }
     #game-over-content .high-score-display {
-      font-size: 1.3rem;
+      font-size: 0.95rem;
       color: #ffd700;
-      margin: 10px 0;
+      margin: 10px 0 22px 0;
+      font-weight: 700;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    }
+    .high-score-new {
+      animation: bounce 0.6s ease infinite;
+      font-size: 1rem;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
     }
     #restart-btn {
-      margin-top: 30px;
-      padding: 15px 40px;
-      font-size: 1.2rem;
+      margin-top: 10px;
+      padding: 10px 28px;
+      font-size: 0.85rem;
       background: linear-gradient(135deg, #00d4aa 0%, #00aa88 100%);
-      box-shadow: 0 0 20px rgba(0, 212, 170, 0.8);
+      box-shadow: 0 6px 20px rgba(0, 212, 170, 0.6), 0 0 30px rgba(0, 212, 170, 0.3);
+      letter-spacing: 0.5px;
     }
     #restart-btn:hover {
-      box-shadow: 0 0 35px rgba(0, 212, 170, 1);
+      box-shadow: 0 10px 35px rgba(0, 212, 170, 0.8), 0 0 50px rgba(0, 212, 170, 0.4);
     }
   </style>
 </head>
 <body>
 
-  <div id="score-board">SCORE: <span id="score">0</span></div>
-  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div id="starfield"></div>
+
+  <h1 id="game-title">🐍 SNAKE GAME 🐍</h1>
+
+  <div id="game-container">
+    <div id="score-board">
+      <span>🎯 SCORE: <span id="score">0</span></span>
+      <span id="high-score">⭐ HIGH SCORE: <span>0</span></span>
+    </div>
+    <canvas id="gameCanvas" width="340" height="340"></canvas>
+    <div id="controls">
+      <div class="speed-display">⚡ SPEED: <span id="speed-level">6.7</span> fps</div>
+      <div class="mode-toggle">
+        🎮 WALLS: <button id="wrap-mode-btn">ON</button>
+      </div>
+      <button id="pause-btn" class="pause-button">⏸ PAUSE</button>
+    </div>
+  </div>
+
+  <div id="game-over-screen">
+    <div id="game-over-content">
+      <h1>GAME OVER</h1>
+      <p>You scored:</p>
+      <div class="score-final" id="final-score">0</div>
+      <div class="high-score-display" id="high-score-msg"></div>
+      <button id="see-trail-btn">👻 See Trail</button>
+      <button id="restart-btn">Play Again</button>
+    </div>
+    <div id="trail-viewer">
+      <div id="trail-status">👻 YOUR SNAKE TRAIL 👻</div>
+      <canvas id="trail-canvas" width="340" height="340"></canvas>
+      <div id="trail-controls">
+        <button id="trail-back-btn">← Back</button>
+        <button id="trail-restart-btn">Play Again</button>
+      </div>
+    </div>
+  </div>
 
   <script>
+    // ─────────────────────────────────────────────────────────────────
+    // STARFIELD GENERATION
+    // ─────────────────────────────────────────────────────────────────
+
+    function createStarfield() {
+      const starfield = document.getElementById('starfield');
+      const starCount = 150;
+      const twinkleAnimations = ['twinkle', 'twinkle-fast', 'twinkle-slow'];
+
+      for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animation = twinkleAnimations[Math.floor(Math.random() * twinkleAnimations.length)] + ' ' + (2 + Math.random() * 3) + 's ease-in-out infinite';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        starfield.appendChild(star);
+      }
+    }
+
+    createStarfield();
+
     const canvas = document.getElementById('gameCanvas');
     const ctx    = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
+    const highScoreEl = document.querySelector('#high-score span');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const finalScoreEl = document.getElementById('final-score');
+    const highScoreMsgEl = document.getElementById('high-score-msg');
+    const restartBtn = document.getElementById('restart-btn');
+    const wrapModeBtn = document.getElementById('wrap-mode-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const speedLevelEl = document.getElementById('speed-level');
+    const seeTrailBtn = document.getElementById('see-trail-btn');
+    const trailViewer = document.getElementById('trail-viewer');
+    const trailCanvas = document.getElementById('trail-canvas');
+    const trailCtx = trailCanvas.getContext('2d');
+    const trailBackBtn = document.getElementById('trail-back-btn');
+    const trailRestartBtn = document.getElementById('trail-restart-btn');
 
     // ─────────────────────────────────────────────────────────────────
-    // TODO – PHASE 3, STEP 1
-    // Using Copilot Agent, define the game constants and variables.
-    // Use the starter prompt in prompts.md → Phase 3, Step 1.
-    //
-    // You will need: GRID_SIZE, TILE_COUNT, snake array, food object,
-    // direction variables (dx/dy), a score counter, and a gameLoop ref.
+    // GAME CONSTANTS AND VARIABLES
     // ─────────────────────────────────────────────────────────────────
 
-    const GRID_SIZE = 20;
+    const GRID_SIZE = 17;
     const TILE_COUNT = 20;
+
+    // Fruit types
+    const fruitTypes = ['apple', 'banana', 'strawberry', 'orange', 'grape'];
+    let fruitType = 'apple';
 
     let snake = [
       { x: 10, y: 10 },
@@ -168,22 +464,32 @@
       y: Math.floor(Math.random() * TILE_COUNT)
     };
 
+    // Set initial fruit type
+    fruitType = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
+
     let dx = 1;
     let dy = 0;
     let score = 0;
     let gameLoop = null;
+    let currentSpeed = 150;
+    let wrapMode = false;
+    let isGameOver = false;
+    let isPaused = false;
+    let highScore = localStorage.getItem('snakeHighScore') || 0;
+    let ghostRunData = null;
+    let currentRunFrames = [];  // Record frames during current run
+    let lastGameFrames = [];  // Store frames from last game for trail view
 
+    // Load high score on start
+    highScoreEl.textContent = highScore;
 
     // ─────────────────────────────────────────────────────────────────
-    // TODO – PHASE 3, STEP 2
-    // Using Copilot Agent, add keyboard event listeners.
-    // Use the starter prompt in prompts.md → Phase 3, Step 2.
-    //
-    // Handle ArrowUp / ArrowDown / ArrowLeft / ArrowRight.
-    // Prevent the snake from reversing directly into itself.
+    // KEYBOARD CONTROLS
     // ─────────────────────────────────────────────────────────────────
 
     document.addEventListener('keydown', (e) => {
+      if (isPaused && e.key !== ' ') return;
+      
       if (e.key === 'ArrowUp' && dy !== 1) {
         dx = 0;
         dy = -1;
@@ -196,58 +502,322 @@
       } else if (e.key === 'ArrowRight' && dx !== -1) {
         dx = 1;
         dy = 0;
+      } else if (e.key === ' ') {
+        // Space to restart when game is over or pause/resume during game
+        if (isGameOver) {
+          restartGame();
+        } else if (!isGameOver) {
+          togglePause();
+        }
       }
     });
 
-
     // ─────────────────────────────────────────────────────────────────
-    // TODO – PHASE 3, STEP 3
-    // Using Copilot Agent, implement the main game loop function.
-    // Use the starter prompt in prompts.md → Phase 3, Step 3.
-    //
-    // It should: move the snake, check wall/self collisions,
-    // check if food is eaten, draw everything on the canvas.
+    // MAIN GAME LOOP
     // ─────────────────────────────────────────────────────────────────
 
     function gameStep() {
-      // 1. Calculate new head position
+      // Record current frame for ghost
+      currentRunFrames.push(JSON.parse(JSON.stringify(snake)));
+      
       const newHead = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-      // 2. Check wall collision
-      if (newHead.x < 0 || newHead.x >= TILE_COUNT || newHead.y < 0 || newHead.y >= TILE_COUNT) {
-        gameOver();
-        return;
+      // Handle wrap mode
+      if (wrapMode) {
+        newHead.x = (newHead.x + TILE_COUNT) % TILE_COUNT;
+        newHead.y = (newHead.y + TILE_COUNT) % TILE_COUNT;
+      } else {
+        // Wall collision
+        if (newHead.x < 0 || newHead.x >= TILE_COUNT || newHead.y < 0 || newHead.y >= TILE_COUNT) {
+          gameOverFunc();
+          return;
+        }
       }
 
-      // 3. Check self-collision
+      // Self-collision
       if (snake.some(seg => seg.x === newHead.x && seg.y === newHead.y)) {
-        gameOver();
+        gameOverFunc();
         return;
       }
 
-      // 4. Add new head to front of snake
       snake.unshift(newHead);
 
-      // 5. Check if food eaten
+      // Check if food eaten
       if (newHead.x === food.x && newHead.y === food.y) {
         score++;
         scoreEl.textContent = score;
-        // Place food at new random grid position
-        food = {
-          x: Math.floor(Math.random() * TILE_COUNT),
-          y: Math.floor(Math.random() * TILE_COUNT)
-        };
+
+        // Speed ramp-up: every 3 points, speed increases
+        if (score % 3 === 0 && currentSpeed > 60) {
+          currentSpeed -= 15;
+          clearInterval(gameLoop);
+          gameLoop = setInterval(gameStep, currentSpeed);
+          updateSpeedDisplay();
+        }
+
+        // Place new food and select random fruit type
+        let foodOK = false;
+        while (!foodOK) {
+          food = {
+            x: Math.floor(Math.random() * TILE_COUNT),
+            y: Math.floor(Math.random() * TILE_COUNT)
+          };
+          foodOK = !snake.some(seg => seg.x === food.x && seg.y === food.y);
+        }
+        fruitType = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
       } else {
-        // 6. Remove tail if food NOT eaten (normal movement)
         snake.pop();
       }
 
+      render();
+    }
+
+    function updateSpeedDisplay() {
+      const fps = (1000 / currentSpeed).toFixed(1);
+      speedLevelEl.textContent = fps;
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // FRUIT DRAWING FUNCTIONS
+    // ─────────────────────────────────────────────────────────────────
+
+    function drawApple(foodX, foodY, foodRadius) {
+      // Apple body with gradient
+      const appleGradient = ctx.createRadialGradient(foodX - 1, foodY - 1, 0, foodX, foodY, foodRadius);
+      appleGradient.addColorStop(0, '#ff8a8a');
+      appleGradient.addColorStop(1, '#cc2222');
+      ctx.fillStyle = appleGradient;
+      ctx.beginPath();
+      ctx.arc(foodX, foodY, foodRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Apple shine/highlight
+      ctx.fillStyle = 'rgba(255, 200, 100, 0.5)';
+      ctx.beginPath();
+      ctx.arc(foodX - foodRadius * 0.4, foodY - foodRadius * 0.4, foodRadius * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Stem
+      ctx.strokeStyle = '#2d5016';
+      ctx.lineWidth = 1.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(foodX, foodY - foodRadius);
+      ctx.lineTo(foodX, foodY - foodRadius - 3);
+      ctx.stroke();
+
+      // Leaf
+      ctx.fillStyle = '#52b788';
+      ctx.beginPath();
+      ctx.ellipse(foodX + 2, foodY - foodRadius - 2, 2.5, 1.5, 0.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Leaf shine
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.beginPath();
+      ctx.ellipse(foodX + 2.5, foodY - foodRadius - 2.5, 1, 0.5, 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawBanana(foodX, foodY, foodRadius) {
+      // Banana body
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.ellipse(foodX, foodY, foodRadius, foodRadius * 0.6, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Banana shine
+      ctx.fillStyle = 'rgba(255, 255, 100, 0.6)';
+      ctx.beginPath();
+      ctx.ellipse(foodX - foodRadius * 0.4, foodY - foodRadius * 0.3, foodRadius * 0.5, foodRadius * 0.3, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Banana end tip
+      ctx.fillStyle = '#d4a300';
+      ctx.beginPath();
+      ctx.ellipse(foodX + foodRadius * 0.7, foodY + foodRadius * 0.3, foodRadius * 0.4, foodRadius * 0.35, 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawStrawberry(foodX, foodY, foodRadius) {
+      // Strawberry body
+      const strawGradient = ctx.createRadialGradient(foodX - 1, foodY - 1, 0, foodX, foodY, foodRadius);
+      strawGradient.addColorStop(0, '#ff6b9d');
+      strawGradient.addColorStop(1, '#c41e3a');
+      ctx.fillStyle = strawGradient;
+      ctx.beginPath();
+      ctx.arc(foodX, foodY, foodRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Strawberry shine
+      ctx.fillStyle = 'rgba(255, 150, 150, 0.5)';
+      ctx.beginPath();
+      ctx.arc(foodX - foodRadius * 0.3, foodY - foodRadius * 0.3, foodRadius * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Strawberry leaves (green crown)
+      ctx.fillStyle = '#2d5016';
+      for (let i = 0; i < 5; i++) {
+        const angle = (i / 5) * Math.PI * 2;
+        const lx = foodX + Math.cos(angle) * (foodRadius + 1);
+        const ly = foodY - foodRadius - 1 + Math.sin(angle) * 0.5;
+        ctx.beginPath();
+        ctx.ellipse(lx, ly, 1.2, 0.8, angle, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Strawberry seeds
+      ctx.fillStyle = '#ffeb3b';
+      ctx.beginPath();
+      ctx.arc(foodX, foodY, 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawOrange(foodX, foodY, foodRadius) {
+      // Orange body
+      const orangeGradient = ctx.createRadialGradient(foodX - 1, foodY - 1, 0, foodX, foodY, foodRadius);
+      orangeGradient.addColorStop(0, '#ffb347');
+      orangeGradient.addColorStop(1, '#ff8c00');
+      ctx.fillStyle = orangeGradient;
+      ctx.beginPath();
+      ctx.arc(foodX, foodY, foodRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Orange shine
+      ctx.fillStyle = 'rgba(255, 200, 100, 0.6)';
+      ctx.beginPath();
+      ctx.arc(foodX - foodRadius * 0.3, foodY - foodRadius * 0.3, foodRadius * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Orange segments
+      ctx.strokeStyle = '#ff8c00';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(foodX, foodY - foodRadius);
+        ctx.lineTo(foodX + Math.cos(i * Math.PI / 1.5) * foodRadius, foodY + Math.sin(i * Math.PI / 1.5) * foodRadius);
+        ctx.stroke();
+      }
+    }
+
+    function drawGrape(foodX, foodY, foodRadius) {
+      // Draw a bunch of grapes scaled to foodRadius
+      const grapeSize = foodRadius * 0.25;
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 3; j++) {
+          const gx = foodX - foodRadius * 0.9 + i * foodRadius * 0.36;
+          const gy = foodY - foodRadius * 0.6 + j * foodRadius * 0.36;
+          const grapeGradient = ctx.createRadialGradient(gx - grapeSize * 0.4, gy - grapeSize * 0.4, 0, gx, gy, grapeSize);
+          grapeGradient.addColorStop(0, '#9d7edb');
+          grapeGradient.addColorStop(1, '#5a3a8c');
+          ctx.fillStyle = grapeGradient;
+          ctx.beginPath();
+          ctx.arc(gx, gy, grapeSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Grape shine
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.beginPath();
+      ctx.arc(foodX - foodRadius * 0.4, foodY - foodRadius * 0.5, foodRadius * 0.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawFood(foodX, foodY, foodRadius) {
+      if (fruitType === 'apple') {
+        drawApple(foodX, foodY, foodRadius);
+      } else if (fruitType === 'banana') {
+        drawBanana(foodX, foodY, foodRadius);
+      } else if (fruitType === 'strawberry') {
+        drawStrawberry(foodX, foodY, foodRadius);
+      } else if (fruitType === 'orange') {
+        drawOrange(foodX, foodY, foodRadius);
+      } else if (fruitType === 'grape') {
+        drawGrape(foodX, foodY, foodRadius);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // GHOST RUN RENDERING
+    // ─────────────────────────────────────────────────────────────────
+
+    // ─────────────────────────────────────────────────────────────────
+    // TRAIL VIEWER
+    // ─────────────────────────────────────────────────────────────────
+
+    function drawTrail() {
+      // Clear canvas
+      trailCtx.fillStyle = '#0f3460';
+      trailCtx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+
+      if (!lastGameFrames || lastGameFrames.length === 0) return;
+
+      // Draw all frames as a faded trail
+      for (let f = 0; f < lastGameFrames.length; f++) {
+        const ghostSnake = lastGameFrames[f];
+        const opacity = (f / lastGameFrames.length) * 0.6;  // Fade from 0 to 0.6
+
+        for (let i = ghostSnake.length - 1; i >= 0; i--) {
+          const segment = ghostSnake[i];
+          const x = segment.x * GRID_SIZE;
+          const y = segment.y * GRID_SIZE;
+          const centerX = x + GRID_SIZE / 2;
+          const centerY = y + GRID_SIZE / 2;
+
+          if (i === 0) {
+            // Head in purple
+            trailCtx.fillStyle = `rgba(168, 85, 247, ${opacity})`;
+            trailCtx.beginPath();
+            trailCtx.arc(centerX, centerY, GRID_SIZE / 2 - 1, 0, Math.PI * 2);
+            trailCtx.fill();
+
+            trailCtx.strokeStyle = `rgba(200, 120, 255, ${opacity + 0.2})`;
+            trailCtx.lineWidth = 1;
+            trailCtx.beginPath();
+            trailCtx.arc(centerX, centerY, GRID_SIZE / 2 - 1, 0, Math.PI * 2);
+            trailCtx.stroke();
+          } else {
+            // Body in purple
+            let width = GRID_SIZE - 3;
+            let height = GRID_SIZE - 2;
+
+            trailCtx.fillStyle = `rgba(150, 80, 255, ${opacity * 0.8})`;
+            trailCtx.beginPath();
+            trailCtx.ellipse(centerX, centerY, width / 2, height / 2, 0, 0, Math.PI * 2);
+            trailCtx.fill();
+
+            trailCtx.strokeStyle = `rgba(180, 100, 255, ${opacity})`;
+            trailCtx.lineWidth = 0.5;
+            trailCtx.beginPath();
+            trailCtx.ellipse(centerX, centerY, width / 2, height / 2, 0, 0, Math.PI * 2);
+            trailCtx.stroke();
+          }
+        }
+      }
+    }
+
+    function showTrailViewer() {
+      document.getElementById('game-over-content').style.display = 'none';
+      trailViewer.classList.add('show');
+      drawTrail();
+    }
+
+    function hideTrailViewer() {
+      document.getElementById('game-over-content').style.display = 'flex';
+      trailViewer.classList.remove('show');
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // RENDERING
+    // ─────────────────────────────────────────────────────────────────
+
+    function render() {
       // 7. Clear entire canvas
       ctx.fillStyle = '#0f3460';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // 8. Draw snake as a continuous modern body
-      // Draw body segments with smooth connections
       for (let i = snake.length - 1; i >= 0; i--) {
         const segment = snake[i];
         const x = segment.x * GRID_SIZE;
@@ -257,18 +827,17 @@
 
         if (i === 0) {
           // Draw head with modern style
-          ctx.fillStyle = '#27ae60'; // Dark green
+          ctx.fillStyle = '#27ae60';
           ctx.beginPath();
           ctx.arc(centerX, centerY, GRID_SIZE / 2 - 1, 0, Math.PI * 2);
           ctx.fill();
 
-          // Head highlight
           ctx.fillStyle = '#2ecc71';
           ctx.beginPath();
           ctx.ellipse(centerX, centerY - 3, GRID_SIZE / 3.5, GRID_SIZE / 4.5, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Large expressive anime eyes
+          // Large anime eyes
           ctx.fillStyle = '#000';
           ctx.beginPath();
           ctx.arc(centerX - 5, centerY - 2, 3, 0, Math.PI * 2);
@@ -277,7 +846,7 @@
           ctx.arc(centerX + 5, centerY - 2, 3, 0, Math.PI * 2);
           ctx.fill();
 
-          // Eye shine (big sparkles)
+          // Eye shine
           ctx.fillStyle = '#fff';
           ctx.beginPath();
           ctx.arc(centerX - 5, centerY - 3, 1.5, 0, Math.PI * 2);
@@ -295,47 +864,64 @@
           ctx.arc(centerX + 8, centerY + 1, 2.5, 0, Math.PI * 2);
           ctx.fill();
 
-          // Draw forked tongue sticking out
+          // Cute open mouth/smile
+          ctx.fillStyle = '#2d2d2d';
+          ctx.beginPath();
+          ctx.arc(centerX, centerY + 5, 2.5, 0, Math.PI);
+          ctx.fill();
+
+          // Mouth shine (inside)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+          ctx.beginPath();
+          ctx.arc(centerX - 1.5, centerY + 4.5, 1, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Happy smile line
           ctx.strokeStyle = '#ff69b4';
-          ctx.lineWidth = 1.5;
+          ctx.lineWidth = 1;
           ctx.lineCap = 'round';
-          
-          // Left fork of tongue
           ctx.beginPath();
-          ctx.moveTo(centerX - 1.5, centerY + 7);
-          ctx.lineTo(centerX - 3, centerY + 11);
-          ctx.stroke();
-          
-          // Right fork of tongue
-          ctx.beginPath();
-          ctx.moveTo(centerX + 1.5, centerY + 7);
-          ctx.lineTo(centerX + 3, centerY + 11);
+          ctx.arc(centerX, centerY + 5, 1.8, 0, Math.PI);
           ctx.stroke();
 
-          // Tongue base (small circle)
+          // Cute little forked tongue
+          ctx.strokeStyle = '#ff69b4';
+          ctx.lineWidth = 1;
+          ctx.lineCap = 'round';
+          
+          // Left fork
+          ctx.beginPath();
+          ctx.moveTo(centerX - 1, centerY + 7);
+          ctx.lineTo(centerX - 2, centerY + 9);
+          ctx.stroke();
+          
+          // Right fork
+          ctx.beginPath();
+          ctx.moveTo(centerX + 1, centerY + 7);
+          ctx.lineTo(centerX + 2, centerY + 9);
+          ctx.stroke();
+
+          // Tiny tongue tip
           ctx.fillStyle = '#ff69b4';
           ctx.beginPath();
-          ctx.arc(centerX, centerY + 6, 1.5, 0, Math.PI * 2);
+          ctx.arc(centerX, centerY + 8, 0.8, 0, Math.PI * 2);
           ctx.fill();
 
         } else {
-          // Draw body segments as connected ovals (smooth, flowing)
+          // Body segments
           let width = GRID_SIZE - 3;
           let height = GRID_SIZE - 2;
 
-          // Gradient body color (darker green with belly)
           ctx.fillStyle = '#27ae60';
           ctx.beginPath();
           ctx.ellipse(centerX, centerY, width / 2, height / 2, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Belly stripe (lighter)
           ctx.fillStyle = '#f0e68c';
           ctx.beginPath();
           ctx.ellipse(centerX, centerY + 2, width / 2.5, height / 3.5, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Add pattern spots (brown)
           if (Math.random() > 0.6) {
             ctx.fillStyle = '#8b6f47';
             ctx.beginPath();
@@ -343,14 +929,12 @@
             ctx.fill();
           }
 
-          // Scale texture (darker outline segments)
           ctx.strokeStyle = '#1a5f2e';
           ctx.lineWidth = 0.8;
           ctx.beginPath();
           ctx.ellipse(centerX, centerY, width / 2, height / 2, 0, 0, Math.PI * 2);
           ctx.stroke();
 
-          // Add scale line in middle (for visual depth)
           ctx.strokeStyle = '#1a5f2e';
           ctx.lineWidth = 0.5;
           ctx.beginPath();
@@ -360,44 +944,124 @@
         }
       }
 
-      // 9. Draw food as filled circle centred on its tile
-      ctx.fillStyle = '#ff6b6b'; // Red
-      ctx.beginPath();
-      ctx.arc(
-        food.x * GRID_SIZE + GRID_SIZE / 2,
-        food.y * GRID_SIZE + GRID_SIZE / 2,
-        GRID_SIZE / 3,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
+      // 9. Draw food with random fruit type
+      const foodX = food.x * GRID_SIZE + GRID_SIZE / 2;
+      const foodY = food.y * GRID_SIZE + GRID_SIZE / 2;
+      const foodRadius = GRID_SIZE / 3;
+      drawFood(foodX, foodY, foodRadius);
     }
 
-    function gameOver() {
+    // ─────────────────────────────────────────────────────────────────
+    // GAME OVER & RESTART
+    // ─────────────────────────────────────────────────────────────────
+
+    function gameOverFunc() {
       clearInterval(gameLoop);
+      isGameOver = true;
+
+      finalScoreEl.textContent = score;
+
+      // Save the last game's frames for trail viewing
+      lastGameFrames = JSON.parse(JSON.stringify(currentRunFrames));
+
+      // Update high score
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('snakeHighScore', highScore);
+        highScoreEl.textContent = highScore;
+        highScoreMsgEl.innerHTML = '<div class="high-score-new">🎉 NEW HIGH SCORE! 🎉</div>';
+      } else {
+        highScoreMsgEl.innerHTML = `<p>High Score: ${highScore}</p>`;
+      }
+
+      gameOverScreen.classList.add('show');
+      trailViewer.classList.remove('show');
     }
 
+    function restartGame() {
+      // Reset game state
+      snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+      ];
+      currentRunFrames = [];  // Reset frame recording
+
+      food = {
+        x: Math.floor(Math.random() * TILE_COUNT),
+        y: Math.floor(Math.random() * TILE_COUNT)
+      };
+
+      fruitType = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
+
+      dx = 1;
+      dy = 0;
+      score = 0;
+      currentSpeed = 150;
+      isGameOver = false;
+      isPaused = false;
+      scoreEl.textContent = '0';
+      gameOverScreen.classList.remove('show');
+      highScoreMsgEl.textContent = '';
+      pauseBtn.classList.remove('paused');
+      pauseBtn.textContent = '⏸ PAUSE';
+      updateSpeedDisplay();
+
+      render();
+      gameLoop = setInterval(gameStep, currentSpeed);
+    }
 
     // ─────────────────────────────────────────────────────────────────
-    // TODO – PHASE 3, STEP 4
-    // Using Copilot Agent, start the game loop with setInterval.
-    // Use the starter prompt in prompts.md → Phase 3, Step 4.
-    //
-    // Start with an interval of ~150ms. Update scoreEl.textContent
-    // whenever the snake eats food.
+    // PAUSE & RESUME
     // ─────────────────────────────────────────────────────────────────
 
-    gameLoop = setInterval(gameStep, 150);
-
+    function togglePause() {
+      if (isGameOver) return;
+      
+      isPaused = !isPaused;
+      
+      if (isPaused) {
+        clearInterval(gameLoop);
+        pauseBtn.classList.add('paused');
+        pauseBtn.textContent = '▶ RESUME';
+      } else {
+        pauseBtn.classList.remove('paused');
+        pauseBtn.textContent = '⏸ PAUSE';
+        gameLoop = setInterval(gameStep, currentSpeed);
+      }
+    }
 
     // ─────────────────────────────────────────────────────────────────
-    // TODO – PHASE 4
-    // Using Copilot Agent, add refinements and extra features.
-    // See prompts.md → Phase 4 for ideas and starter prompts.
-    //
-    // Ideas: game over screen, restart button, speed ramp-up,
-    // high score (localStorage), walls-off wrap mode, visual effects...
+    // WRAP MODE TOGGLE
     // ─────────────────────────────────────────────────────────────────
+
+    wrapModeBtn.addEventListener('click', () => {
+      wrapMode = !wrapMode;
+      wrapModeBtn.textContent = wrapMode ? 'OFF' : 'ON';
+      if (wrapMode) {
+        wrapModeBtn.parentElement.style.animation = 'modeFlash 0.3s ease';
+      }
+    });
+
+    seeTrailBtn.addEventListener('click', showTrailViewer);
+    trailBackBtn.addEventListener('click', hideTrailViewer);
+
+    trailRestartBtn.addEventListener('click', () => {
+      gameOverScreen.classList.remove('show');
+      restartGame();
+    });
+
+    restartBtn.addEventListener('click', restartGame);
+
+    pauseBtn.addEventListener('click', togglePause);
+
+    // ─────────────────────────────────────────────────────────────────
+    // START GAME
+    // ─────────────────────────────────────────────────────────────────
+
+    updateSpeedDisplay();
+    render();
+    gameLoop = setInterval(gameStep, currentSpeed);
 
   </script>
 </body>
