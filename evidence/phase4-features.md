@@ -1,7 +1,7 @@
 # Phase 4 Evidence – Refinements (Copilot Agent Mode)
 
-**Team name:** _your team name here_
-**Completed at:** _e.g. 14:33_
+**Team name:** Lara
+**Completed at:** 18:17
 
 ---
 
